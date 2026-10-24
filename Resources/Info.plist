@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>CFBundleDevelopmentRegion</key>
+    <string>nb</string>
+    <key>CFBundleDisplayName</key>
+    <string>Bildeimport</string>
+    <key>CFBundleExecutable</key>
+    <string>Bildeimport</string>
+    <key>CFBundleIconFile</key>
+    <string>AppIcon</string>
+    <key>CFBundleIdentifier</key>
+    <string>no.bildeimport.Bildeimport</string>
+    <key>CFBundleInfoDictionaryVersion</key>
+    <string>6.0</string>
+    <key>CFBundleName</key>
+    <string>Bildeimport</string>
+    <key>CFBundlePackageType</key>
+    <string>APPL</string>
+    <key>CFBundleShortVersionString</key>
+    <string>__VERSION__</string>
+    <key>CFBundleVersion</key>
+    <string>__BUILD__</string>
+    <key>LSApplicationCategoryType</key>
+    <string>public.app-category.photography</string>
+    <key>LSMinimumSystemVersion</key>
+    <string>15.0</string>
+    <key>NSHighResolutionCapable</key>
+    <true/>
+    <key>NSHumanReadableCopyright</key>
+    <string>Bildeimport</string>
+    <key>NSRemovableVolumesUsageDescription</key>
+    <string>Bildeimport leser bildene og videoene på minnekortet for å kopiere dem til Macen. Ingenting på kortet blir endret.</string>
+    <key>NSDesktopFolderUsageDescription</key>
+    <string>Bildeimport lagrer bildene i mappen du har valgt.</string>
+    <key>NSDocumentsFolderUsageDescription</key>
+    <string>Bildeimport lagrer bildene i mappen du har valgt.</string>
+    <key>NSDownloadsFolderUsageDescription</key>
+    <string>Bildeimport lagrer bildene i mappen du har valgt.</string>
+    <key>NSNetworkVolumesUsageDescription</key>
+    <string>Bildeimport lagrer bildene i mappen du har valgt.</string>
+</dict>
+</plist>

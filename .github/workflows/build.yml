@@ -1,0 +1,51 @@
+name: Build
+
+# Runs the tests on every push and pull request.
+# A tag such as v1.0.0 also builds the DMG and attaches it to a GitHub release.
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Show tool versions
+        run: |
+          sw_vers
+          swift --version
+
+      - name: Run tests
+        run: swift test
+
+      - name: Build DMG
+        run: |
+          chmod +x scripts/build-dmg.sh
+          if [[ "$GITHUB_REF" == refs/tags/v* ]]; then
+            scripts/build-dmg.sh "${GITHUB_REF_NAME}"
+          else
+            scripts/build-dmg.sh "0.0.0"
+          fi
+
+      - name: Keep the DMG as a build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Bildeimport-dmg
+          path: build/*.dmg
+
+      - name: Publish release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: build/*.dmg
+          body: |
+            Last ned DMG-filen under, åpne den og dra Bildeimport til Programmer.
+            Første gang appen åpnes, må den godkjennes i Systeminnstillinger. Se README for steg-for-steg-veiledning.
