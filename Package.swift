@@ -1,4 +1,4 @@
-// swift-tools-version:5.10
+// swift-tools-version:6.0
 import PackageDescription
 
 let package = Package(
@@ -28,5 +28,7 @@ let package = Package(
             dependencies: ["ImportCore"],
             path: "Tests/ImportCoreTests"
         )
-    ]
+    ],
+    // Swift 5 language mode keeps concurrency checking at warning level.
+    swiftLanguageModes: [.v5]
 )
