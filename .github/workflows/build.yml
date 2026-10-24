@@ -16,15 +16,31 @@ jobs:
   build:
     runs-on: macos-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Show tool versions
         run: |
           sw_vers
           swift --version
+          echo "::notice::$(swift --version 2>&1 | head -1)"
 
       - name: Run tests
-        run: swift test
+        run: |
+          set -o pipefail
+          swift test 2>&1 | tee test.log
+
+      # Shows compiler and test errors as annotations on the run page,
+      # so they are visible without opening the full log.
+      - name: Report errors
+        if: failure()
+        run: |
+          [ -f test.log ] || exit 0
+          grep -E "error:|failed|Fatal error" test.log | head -25 | while IFS= read -r line; do
+            echo "::error::${line//%/%25}"
+          done
+          tail -12 test.log | while IFS= read -r line; do
+            echo "::notice::${line//%/%25}"
+          done
 
       - name: Build DMG
         run: |
