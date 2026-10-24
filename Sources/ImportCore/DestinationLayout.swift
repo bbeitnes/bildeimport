@@ -28,23 +28,41 @@ public enum PlacementDecision: Equatable, Sendable {
 
 /// Finds a safe destination name without ever overwriting an existing file.
 ///
-/// - Same name and identical contents already in the folder: the file is skipped.
+/// - Same name, same size and same modification time already in the folder: the file is
+///   skipped at once, without reading it. The importer keeps the card's modification time
+///   when copying, so this matches every file imported before and makes re-imports fast.
+/// - Same name and size but another modification time: the contents are compared byte by
+///   byte, and the file is skipped if they are identical.
 /// - Same name but different contents: the copy gets a number, `IMG_1234 (2).JPG`,
-///   then `(3)` and so on. Numbered files are also checked for identical contents,
+///   then `(3)` and so on. Numbered files are checked the same way,
 ///   so importing the same card twice never creates extra copies.
 public enum DuplicateResolver {
     public static let maximumNumber = 9_999
+    /// FAT-formatted cards store modification times in 2-second steps.
+    public static let modificationTimeTolerance: TimeInterval = 2
 
     public static func decide(
         source: URL,
         fileName: String,
         folder: URL,
+        sourceSize: Int64? = nil,
+        sourceModificationDate: Date? = nil,
         fileManager: FileManager = .default
     ) throws -> PlacementDecision {
+        let size = try sourceSize ?? FileComparer.fileSize(source, fileManager: fileManager)
         for candidate in candidateNames(for: fileName) {
             let target = folder.appendingPathComponent(candidate, isDirectory: false)
-            if !fileManager.fileExists(atPath: target.path) {
+            guard let attributes = try? fileManager.attributesOfItem(atPath: target.path) else {
+                if fileManager.fileExists(atPath: target.path) { continue } // Exists but unreadable: never touch it.
                 return .copy(to: target)
+            }
+            let existingSize = (attributes[.size] as? NSNumber)?.int64Value ?? -1
+            guard existingSize == size else { continue } // Different size: certainly a different file.
+
+            if let sourceDate = sourceModificationDate,
+               let existingDate = attributes[.modificationDate] as? Date,
+               abs(existingDate.timeIntervalSince(sourceDate)) <= modificationTimeTolerance {
+                return .alreadyImported(at: target)
             }
             if try FileComparer.haveSameContents(source, target, fileManager: fileManager) {
                 return .alreadyImported(at: target)

@@ -77,6 +77,53 @@ final class LayoutAndDuplicateTests: XCTestCase {
         XCTAssertEqual(decision, .alreadyImported(at: folder.appendingPathComponent("IMG_1 (2).JPG")))
     }
 
+    func testSameNameSizeAndTimeIsSkippedWithoutReading() throws {
+        let source = root.appendingPathComponent("card/IMG_1.JPG")
+        let existing = root.appendingPathComponent("dest/IMG_1.JPG")
+        try write("AAAA", to: source)
+        // Same size, different bytes: only a byte check would notice. With matching
+        // modification times the fast check must decide without reading the contents.
+        try write("BBBB", to: existing)
+        let date = Date(timeIntervalSince1970: 1_790_000_000)
+        try FileManager.default.setAttributes([.modificationDate: date], ofItemAtPath: existing.path)
+
+        let decision = try DuplicateResolver.decide(
+            source: source, fileName: "IMG_1.JPG", folder: existing.deletingLastPathComponent(),
+            sourceSize: 4, sourceModificationDate: date.addingTimeInterval(1)
+        )
+        XCTAssertEqual(decision, .alreadyImported(at: existing))
+    }
+
+    func testSameNameAndSizeButOtherTimeFallsBackToByteCheck() throws {
+        let source = root.appendingPathComponent("card/IMG_1.JPG")
+        let existing = root.appendingPathComponent("dest/IMG_1.JPG")
+        try write("AAAA", to: source)
+        try write("BBBB", to: existing)
+        try FileManager.default.setAttributes([.modificationDate: Date(timeIntervalSince1970: 1_700_000_000)],
+                                              ofItemAtPath: existing.path)
+
+        let folder = existing.deletingLastPathComponent()
+        let decision = try DuplicateResolver.decide(
+            source: source, fileName: "IMG_1.JPG", folder: folder,
+            sourceSize: 4, sourceModificationDate: Date(timeIntervalSince1970: 1_790_000_000)
+        )
+        XCTAssertEqual(decision, .copy(to: folder.appendingPathComponent("IMG_1 (2).JPG")))
+    }
+
+    func testImportedCopyKeepsModificationTime() throws {
+        let source = root.appendingPathComponent("card/IMG_1.JPG")
+        let target = root.appendingPathComponent("dest/IMG_1.JPG")
+        try write("photo", to: source)
+        try FileManager.default.createDirectory(at: target.deletingLastPathComponent(), withIntermediateDirectories: true)
+        let date = Date(timeIntervalSince1970: 1_790_000_000)
+        try FileManager.default.setAttributes([.modificationDate: date], ofItemAtPath: source.path)
+
+        try Importer.copyVerified(from: source, to: target, fileManager: .default)
+
+        let copied = try XCTUnwrap(FileManager.default.attributesOfItem(atPath: target.path)[.modificationDate] as? Date)
+        XCTAssertEqual(copied.timeIntervalSince1970, date.timeIntervalSince1970, accuracy: 1)
+    }
+
     // MARK: Scanning
 
     func testScannerFindsMediaInSubfoldersAndSkipsOtherFiles() throws {

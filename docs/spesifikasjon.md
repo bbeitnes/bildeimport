@@ -102,7 +102,10 @@ Bilder/
 ## Beskyttelse av filer og duplikater
 
 - Eksisterende filer overskrives aldri.
-- En fil regnes som allerede importert når en fil med samme navn og identisk innhold finnes i datomappen. Innholdet sammenlignes byte for byte. Slike filer hoppes over i stillhet og telles i oppsummeringen.
+- En fil regnes som allerede importert når en fil med samme navn finnes i datomappen og
+  - har samme størrelse og samme endringstidspunkt (innenfor 2 sekunder). Dette avgjøres uten å lese filene, slik at en ny import av et kort som er importert før, går raskt. Appen beholder kortets endringstidspunkt når den kopierer.
+  - eller har samme størrelse og identisk innhold når filene sammenlignes byte for byte. Dette brukes når endringstidspunktet er ulikt.
+- Filer som allerede er importert, hoppes over i stillhet og telles i oppsummeringen.
 - En annen fil med samme navn får et nummer: `IMG_1234 (2).JPG`, deretter `(3)` og så videre. Nummererte filer sjekkes også for identisk innhold, slik at en ny import av samme kort ikke lager flere kopier.
 - Hver fil kopieres først under et skjult midlertidig navn, sammenlignes med originalen og får først deretter sitt endelige navn. En halvveis kopiert fil blir aldri liggende.
 - Før kopieringen starter, kontrollerer appen at det er nok ledig plass. Filer som etter navn og størrelse ser ut til å være importert fra før, regnes ikke med.

@@ -86,7 +86,11 @@ final class ImporterTests: XCTestCase {
     func testDifferentFileWithSameNameIsNotOverwritten() async throws {
         let folder = mainFolder.appendingPathComponent("2026/2026-10-24")
         try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
-        try Data("older photo".utf8).write(to: folder.appendingPathComponent("IMG_0001.JPG"))
+        let older = folder.appendingPathComponent("IMG_0001.JPG")
+        try Data("older photo".utf8).write(to: older)
+        // Taken a year earlier (e.g. the camera's numbering started over), same size by chance.
+        try FileManager.default.setAttributes([.modificationDate: Date().addingTimeInterval(-365 * 86_400)],
+                                              ofItemAtPath: older.path)
         try put("IMG_0001.JPG", "newer photo")
 
         let summary = try await runImport(importer(["IMG_0001.JPG": CaptureDay(year: 2026, month: 10, day: 24)!]))

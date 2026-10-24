@@ -155,7 +155,13 @@ public struct Importer: Sendable {
                                     currentDestination: Self.describe(item.dateSource.day)))
             do {
                 try fileManager.createDirectory(at: item.folder, withIntermediateDirectories: true)
-                let decision = try DuplicateResolver.decide(source: item.file.url, fileName: item.file.fileName, folder: item.folder)
+                let decision = try DuplicateResolver.decide(
+                    source: item.file.url,
+                    fileName: item.file.fileName,
+                    folder: item.folder,
+                    sourceSize: item.file.size,
+                    sourceModificationDate: item.file.modificationDate
+                )
                 switch decision {
                 case .alreadyImported:
                     summary.alreadyImportedCount += 1
@@ -199,6 +205,11 @@ public struct Importer: Sendable {
             try fileManager.copyItem(at: source, to: temporary)
             guard try FileComparer.haveSameContents(source, temporary, fileManager: fileManager) else {
                 throw CopyError.verificationFailed
+            }
+            // The copy keeps the card's modification time. Set it explicitly as well,
+            // because the fast duplicate check on the next import depends on it.
+            if let modified = try? fileManager.attributesOfItem(atPath: source.path)[.modificationDate] as? Date {
+                try? fileManager.setAttributes([.modificationDate: modified], ofItemAtPath: temporary.path)
             }
             try fileManager.moveItem(at: temporary, to: target)
         } catch {
