@@ -15,7 +15,7 @@ enum Theme {
     static let bodyBold = Font.system(size: 20, weight: .semibold)
     static let caption = Font.system(size: 15)
 
-    static let windowSize = CGSize(width: 680, height: 540)
+    static let windowSize = CGSize(width: 680, height: 600)
 }
 
 /// The big blue button, for example «Importer».

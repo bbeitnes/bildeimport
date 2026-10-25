@@ -41,6 +41,7 @@ Brukeren skal ikke måtte velge en årsmappe eller opprette datomapper selv. App
 - Stor tekst og høy kontrast. Brødtekst er 19–21 punkter, og titler er 34 punkter.
 - Hvert skjermbilde har én tydelig hovedknapp.
 - Appen har ingen menyer brukeren må lete i, og bare ett vindu. Når vinduet lukkes, avsluttes appen.
+- Øverst til høyre i vinduet er det en knapp, «Avslutt programmet». Den skjules mens appen kopierer, slik at importen først stoppes med «Avbryt».
 
 ## Minnekort
 

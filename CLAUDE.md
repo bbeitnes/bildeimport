@@ -18,6 +18,7 @@ A macOS app (SwiftUI, Swift Package Manager) that imports photos and videos from
 ## UI rules
 
 - One clear main action per screen, large text (body 19–21 pt, titles 34 pt), high contrast, no menus to hunt in.
+- An «Avslutt programmet» button sits top right on every screen except while importing (`QuitBar` in `ContentView.swift`).
 - Screens: waiting for card → (choose card) → ready → importing → done → ejected. The design reference is the "Bildeimport – skjermbilder" canvas.
 
 ## Commands

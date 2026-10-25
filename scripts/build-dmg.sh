@@ -11,7 +11,8 @@ cd "$(dirname "$0")/.."
 
 APP_NAME="Bildeimport"
 VERSION="${1:-0.1.0}"
-VERSION="${VERSION#v}"
+VERSION="${VERSION#v}"   # v1.0.0 → 1.0.0
+VERSION="${VERSION#.}"   # v.1.0.0 → 1.0.0
 BUILD_NUMBER="${GITHUB_RUN_NUMBER:-1}"
 BUILD_DIR="build"
 APP_DIR="$BUILD_DIR/$APP_NAME.app"
